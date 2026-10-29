@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+</head>
+<style>
+    body {
+        
+        padding: 20px;
+    }
+    #chat-log {
+        width: 100%;
+        font-size: 24px;
+        border-radius: 8px;
+        background-color: #f0f0f0;
+    }
+    #chat-message-input {
+        width: 95%;
+        font-size: 24px;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    #chat-message-submit {
+        font-size: 24px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    </style>
+<body style="padding: 20px;">
+    <textarea id="chat-log" cols="100" rows="15" style="width: 100%;font-size: 24px;border-radius: 8px;padding: 10px;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></textarea><br>
+    <input id="chat-message-input" type="text" size="100" style="width: 100%;font-size: 24px;border-radius: 8px;padding: 10px;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"><br>
+    <input id="chat-message-submit" type="button" value="Send" style="font-size: 24px; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+    {{ room_name|json_script:"room-name" }}
+    <script src="{% static 'reconnecting-websocket.js' %}"></script>
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        var username = {{ username }};
+        const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const chatSocket = new ReconnectingWebSocket(
+            wsScheme + '://' + window.location.host + '/ws/chat/' + roomName + '/'
+        );
+
+        chatSocket.onopen = function(e) {
+            chatSocket.send(JSON.stringify({
+                'command':"fetch_message"
+                
+            }));
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            
+            
+            for (let i = data['message'].length-1; i >= 0; i--) {
+                document.querySelector('#chat-log').value += (data.message[i].author + ': ' + data.message[i].content + '\n');
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.key === 'Enter') {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'command':"new_message",
+                'username': username
+                
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+</body>
+</html>

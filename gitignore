@@ -1,0 +1,58 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# ---- Virtual environments ----
+venv/
+.venv/
+env/
+ENV/
+
+# ---- Secrets and local config (NEVER commit these) ----
+.env
+.env.*
+!.env.example
+local_settings.py
+*.pem
+*.key
+
+# ---- Django ----
+*.log
+# local databases (db.sqlite3, test_db.sqlite3): they contain real users and messages
+*.sqlite3
+*.sqlite3-journal
+staticfiles/
+static_root/
+# user-uploaded files (chat attachments)
+media/
+
+# ---- Testing and coverage ----
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ---- Redis / local data ----
+dump.rdb
+
+# ---- Node (if you use a frontend toolchain) ----
+node_modules/
+
+# ---- IDEs and editors ----
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+desktop.ini
